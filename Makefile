@@ -1,7 +1,13 @@
-all: Hello
+all: Hello Geometry
 Hello: Hello.c
 	gcc -Wall -Werror -o Hello Hello.c
-clean:
+Geometry: Geometry.c
+	gcc -Wall -Werror -o Geometry Geometry.c
+cleanH:
 	rm Hello
-run:
+runH:
 	./Hello
+cleanG:
+	rm Geometry
+runG:
+	./Geometry

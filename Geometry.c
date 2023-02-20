@@ -6,7 +6,14 @@
 
 void handle_error(const char* error_msg, const char* input, int pos)
 {
+    fprintf(stderr, "%s\n", input);
+    for (int i = 0; i < pos; i++) {
+        fprintf(stderr, " ");
+    }
+    fprintf(stderr, "^\n");
+    fprintf(stderr, "Error at column %d: %s\n", pos, error_msg);
 }
+
 int check_circle(char* input)
 {
     const char* prefix = "circle(";
@@ -53,6 +60,7 @@ int check_circle(char* input)
     fclose(file);
     return 0;
 }
+
 int check_input(const char* input)
 {
     if (strncmp(input, "circle", 6) == 0) {

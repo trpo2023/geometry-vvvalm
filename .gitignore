@@ -1,0 +1,11 @@
+*.o
+*.[oa]
+*~
+*.out
+*.swp
+*.swo
+*.exe
+.vscode
+Hello
+Geometry
+OutputGeometry.txt

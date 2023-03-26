@@ -50,8 +50,8 @@ int check_circle(char* input)
         handle_error("unexpected token", start_ptr, end_ptr - start_ptr);
         return -1;
     }
-    p = 2*pi*radius;
-    s = pi*radius*radius;
+    p = 2 * pi * radius;
+    s = pi * radius * radius;
     printf("circle(%.1f %.1f, %.1f)\n", x, y, radius);
     printf("perimeter = %f\n", p);
     printf("area = %f\n", s);

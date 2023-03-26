@@ -9,6 +9,7 @@ BIN_DIR = bin
 SRC_DIR = src
 OBJ_DIR = obj
 DATA_NAME = InputGaometry.txt
+OUT_NAME = OutputGeometry.txt
 
 DATA_PATH = $(BIN_DIR)/$(DATA_NAME)
 APP_PATH = $(BIN_DIR)/$(APP_NAME)
@@ -43,6 +44,7 @@ clean:
 	$(RM) $(APP_PATH) $(LIB_PATH)
 	find $(OBJ_DIR) -name '*.o' -exec $(RM) '{}' \;
 	find $(OBJ_DIR) -name '*.d' -exec $(RM) '{}' \;
+	find $(OUT_NAME) -exec $(RM) '{}' \;
 
 .PHONY: run
 run: $(APP_PATH)

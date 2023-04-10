@@ -1,5 +1,4 @@
-*.o
-*.[oa]
+*.[oad]
 *~
 *.out
 *.swp
@@ -7,5 +6,5 @@
 *.exe
 .vscode
 Hello
-Geometry
+geometry
 OutputGeometry.txt

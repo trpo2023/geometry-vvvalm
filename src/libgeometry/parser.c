@@ -32,31 +32,30 @@ void handle_error(const char* error_msg, const char* input, int pos)
     print_error_message(error_msg, pos);
 }
 
-int check_circle(char* input)
+int validate_input(char* input, double* x, double* y, double* radius)
 {
     const char* prefix = "circle(";
     char* start_ptr = input;
     int prefix_len = strlen(prefix);
-    double pi = M_PI, p, s;
     if (strncmp(input, prefix, prefix_len)) {
         handle_error("expected '('", start_ptr, 6);
         return -1;
     }
     input += prefix_len;
     char* end_ptr;
-    double x = strtod(input, &end_ptr);
+    *x = strtod(input, &end_ptr);
     if (end_ptr == input || *end_ptr != ' ') {
         handle_error("expected '<double>'", start_ptr, end_ptr - start_ptr);
         return -1;
     }
     input = end_ptr + 1;
-    double y = strtod(input, &end_ptr);
+    *y = strtod(input, &end_ptr);
     if (end_ptr == input || *end_ptr != ',') {
         handle_error("expected ','", start_ptr, end_ptr - start_ptr);
         return -1;
     }
     input = end_ptr + 1;
-    double radius = strtod(input, &end_ptr);
+    *radius = strtod(input, &end_ptr);
     if (end_ptr == input || *end_ptr != ')') {
         handle_error("expected ')'", start_ptr, end_ptr - start_ptr);
         return -1;
@@ -66,8 +65,17 @@ int check_circle(char* input)
         handle_error("unexpected token", start_ptr, end_ptr - start_ptr);
         return -1;
     }
-    p = 2 * pi * radius;
-    s = pi * radius * radius;
+    return 0;
+}
+
+void calculate_circle(double radius, double* p, double* s)
+{
+    *p = 2 * M_PI * radius;
+    *s = M_PI * radius * radius;
+}
+
+void output_results(double x, double y, double radius, double p, double s)
+{
     printf("circle(%.1f %.1f, %.1f)\n", x, y, radius);
     printf("perimeter = %f\n", p);
     printf("area = %f\n", s);
@@ -77,12 +85,27 @@ int check_circle(char* input)
     if (file == NULL) {
         printf("Error: can't create output file:\n");
         printf("%s\n", output_f);
-        return -1;
+        return;
     }
     fprintf(file, "circle(%.1f %.1f, %.1f)\n", x, y, radius);
     fprintf(file, "perimeter = %f\n", p);
     fprintf(file, "area = %f\n", s);
     fclose(file);
+}
+
+int check_circle(char* input)
+{
+    double x, y, radius;
+    if (validate_input(input, &x, &y, &radius) == -1) {
+        return -1;
+    }
+
+    double p, s;
+
+    calculate_circle(radius, &p, &s);
+
+    output_results(x, y, radius, p, s);
+
     return 0;
 }
 

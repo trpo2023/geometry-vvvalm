@@ -32,44 +32,6 @@ void handle_error(const char* error_msg, const char* input, int pos)
     print_error_message(error_msg, pos);
 }
 
-/*
-int validate_input(char* input, double* x, double* y, double* radius)
-{
-    const char* prefix = "circle(";
-    char* start_ptr = input;
-    int prefix_len = strlen(prefix);
-    if (strncmp(input, prefix, prefix_len)) {
-        handle_error("expected '('", start_ptr, 6);
-        return -1;
-    }
-    input += prefix_len;
-    char* end_ptr;
-    *x = strtod(input, &end_ptr);
-    if (end_ptr == input || *end_ptr != ' ') {
-        handle_error("expected '<double>'", start_ptr, end_ptr - start_ptr);
-        return -1;
-    }
-    input = end_ptr + 1;
-    *y = strtod(input, &end_ptr);
-    if (end_ptr == input || *end_ptr != ',') {
-        handle_error("expected ','", start_ptr, end_ptr - start_ptr);
-        return -1;
-    }
-    input = end_ptr + 1;
-    *radius = strtod(input, &end_ptr);
-    if (end_ptr == input || *end_ptr != ')') {
-        handle_error("expected ')'", start_ptr, end_ptr - start_ptr);
-        return -1;
-    }
-    end_ptr += 1;
-    if (*end_ptr != '\0') {
-        handle_error("unexpected token", start_ptr, end_ptr - start_ptr);
-        return -1;
-    }
-    return 0;
-}
-*/
-
 int check_prefix(char* input)
 {
     const char* prefix = "circle(";

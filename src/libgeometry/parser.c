@@ -32,39 +32,98 @@ void handle_error(const char* error_msg, const char* input, int pos)
     print_error_message(error_msg, pos);
 }
 
-int validate_input(char* input, double* x, double* y, double* radius)
+int check_prefix(char* input)
 {
     const char* prefix = "circle(";
-    char* start_ptr = input;
     int prefix_len = strlen(prefix);
     if (strncmp(input, prefix, prefix_len)) {
-        handle_error("expected '('", start_ptr, 6);
         return -1;
     }
-    input += prefix_len;
+    return 0;
+}
+
+int check_x(char* input, double* x)
+{
     char* end_ptr;
     *x = strtod(input, &end_ptr);
     if (end_ptr == input || *end_ptr != ' ') {
-        handle_error("expected '<double>'", start_ptr, end_ptr - start_ptr);
         return -1;
     }
-    input = end_ptr + 1;
+    return 0;
+}
+
+int check_y(char* input, double* y)
+{
+    char* end_ptr;
     *y = strtod(input, &end_ptr);
     if (end_ptr == input || *end_ptr != ',') {
-        handle_error("expected ','", start_ptr, end_ptr - start_ptr);
         return -1;
     }
-    input = end_ptr + 1;
+    return 0;
+}
+
+int check_radius(char* input, double* radius)
+{
+    char* end_ptr;
     *radius = strtod(input, &end_ptr);
     if (end_ptr == input || *end_ptr != ')') {
-        handle_error("expected ')'", start_ptr, end_ptr - start_ptr);
         return -1;
     }
+    return 0;
+}
+
+int check_end(char* input)
+{
+    if (*input != '\0') {
+        return -1;
+    }
+    return 0;
+}
+
+int validate_input(char* input, double* x, double* y, double* radius)
+{
+    char* start_ptr = input;
+
+    if (check_prefix(input)) {
+        handle_error("expected '('", start_ptr, 6);
+        return -1;
+    }
+
+    int prefix_len = strlen("circle(");
+    input += prefix_len;
+
+    if (check_x(input, x)) {
+        handle_error("expected '<double>'", start_ptr, input - start_ptr);
+        return -1;
+    }
+
+    char* end_ptr;
+    strtod(input, &end_ptr);
+    input = end_ptr + 1;
+
+    if (check_y(input, y)) {
+        handle_error("expected ','", start_ptr, input - start_ptr);
+        return -1;
+    }
+
+    strtod(input, &end_ptr);
+    input = end_ptr + 1;
+
+    if (check_radius(input, radius)) {
+        handle_error("expected ')'", start_ptr, input - start_ptr);
+        return -1;
+    }
+
+    strtod(input, &end_ptr);
+    input = end_ptr + 1;
+
     end_ptr += 1;
-    if (*end_ptr != '\0') {
+
+    if (check_end(end_ptr)) {
         handle_error("unexpected token", start_ptr, end_ptr - start_ptr);
         return -1;
     }
+
     return 0;
 }
 

@@ -5,6 +5,6 @@
 *.swo
 *.exe
 .vscode
-Hello
-geometry
+bin/geometry
+bin/test
 OutputGeometry.txt

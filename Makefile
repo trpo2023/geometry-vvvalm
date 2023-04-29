@@ -6,7 +6,6 @@ TEST_NAME = test
 
 CFLAGS = -Wall -Werror -Wextra
 CPPFLAGS = -MMD -I$(THIRDPARTY_DIR) -I$(SRC_DIR) -MP
-LDFLAGS =
 LDLIBS = -lm
 
 BIN_DIR = bin

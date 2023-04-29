@@ -1,0 +1,10 @@
+*.[oad]
+*~
+*.out
+*.swp
+*.swo
+*.exe
+.vscode
+bin/geometry
+bin/test
+OutputGeometry.txt

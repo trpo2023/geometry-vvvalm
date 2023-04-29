@@ -80,10 +80,18 @@ int check_end(char* input)
     return 0;
 }
 
-int validate_input(char* input, double* x, double* y, double* radius)
+int validate_input(
+        char* input,
+        double* x1,
+        double* y1,
+        double* radius1,
+        double* x2,
+        double* y2,
+        double* radius2)
 {
     char* start_ptr = input;
 
+    // Проверяем первую окружность
     if (check_prefix(input)) {
         handle_error("expected '('", start_ptr, 6);
         return -1;
@@ -92,7 +100,7 @@ int validate_input(char* input, double* x, double* y, double* radius)
     int prefix_len = strlen("circle(");
     input += prefix_len;
 
-    if (check_x(input, x)) {
+    if (check_x(input, x1)) {
         handle_error("expected '<double>'", start_ptr, input - start_ptr);
         return -1;
     }
@@ -101,7 +109,7 @@ int validate_input(char* input, double* x, double* y, double* radius)
     strtod(input, &end_ptr);
     input = end_ptr + 1;
 
-    if (check_y(input, y)) {
+    if (check_y(input, y1)) {
         handle_error("expected ','", start_ptr, input - start_ptr);
         return -1;
     }
@@ -109,7 +117,39 @@ int validate_input(char* input, double* x, double* y, double* radius)
     strtod(input, &end_ptr);
     input = end_ptr + 1;
 
-    if (check_radius(input, radius)) {
+    if (check_radius(input, radius1)) {
+        handle_error("expected ')'", start_ptr, input - start_ptr);
+        return -1;
+    }
+
+    strtod(input, &end_ptr);
+    input = end_ptr + 2; // Пропускаем символы ')' и '\n'
+
+    // Проверяем вторую окружность
+    if (check_prefix(input)) {
+        handle_error("expected '('", start_ptr, input - start_ptr);
+        return -1;
+    }
+
+    input += prefix_len;
+
+    if (check_x(input, x2)) {
+        handle_error("expected '<double>'", start_ptr, input - start_ptr);
+        return -1;
+    }
+
+    strtod(input, &end_ptr);
+    input = end_ptr + 1;
+
+    if (check_y(input, y2)) {
+        handle_error("expected ','", start_ptr, input - start_ptr);
+        return -1;
+    }
+
+    strtod(input, &end_ptr);
+    input = end_ptr + 1;
+
+    if (check_radius(input, radius2)) {
         handle_error("expected ')'", start_ptr, input - start_ptr);
         return -1;
     }
@@ -127,18 +167,76 @@ int validate_input(char* input, double* x, double* y, double* radius)
     return 0;
 }
 
-void calculate_circle(double radius, double* p, double* s)
+void calculate_perimeter(double radius, double* p)
 {
     *p = 2 * M_PI * radius;
+}
+
+void calculate_area(double radius, double* s)
+{
     *s = M_PI * radius * radius;
 }
 
-void output_results(double x, double y, double radius, double p, double s)
+int intersect_circles(
+        double x1,
+        double y1,
+        double r1,
+        double x2,
+        double y2,
+        double r2,
+        double* x3,
+        double* y3,
+        double* x4,
+        double* y4)
 {
-    printf("circle(%.1f %.1f, %.1f)\n", x, y, radius);
-    printf("perimeter = %f\n", p);
-    printf("area = %f\n", s);
+    double d = sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+    if (d > r1 + r2 || d < fabs(r1 - r2)) {
+        // circles do not intersect
+        return 0;
+    }
+    double a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
+    double h = sqrt(r1 * r1 - a * a);
+    double x0 = x1 + a * (x2 - x1) / d;
+    double y0 = y1 + a * (y2 - y1) / d;
+    *x3 = x0 + h * (y2 - y1) / d;
+    *y3 = y0 - h * (x2 - x1) / d;
+    *x4 = x0 - h * (y2 - y1) / d;
+    *y4 = y0 + h * (x2 - x1) / d;
+    return 1;
+}
 
+void output_results(
+        double x1,
+        double y1,
+        double radius1,
+        double p1,
+        double s1,
+        double x2,
+        double y2,
+        double radius2,
+        double p2,
+        double s2,
+        int intersect,
+        double x3,
+        double y3,
+        double x4,
+        double y4)
+{
+    printf("First circle: circle(%.1f %.1f, %.1f)\n", x1, y1, radius1);
+    printf("perimeter = %f\n", p1);
+    printf("area = %f\n", s1);
+    printf("Second circle: circle(%.1f %.1f, %.1f)\n", x2, y2, radius2);
+    printf("perimeter = %f\n", p2);
+    printf("area = %f\n", s2);
+    if (intersect) {
+        printf("Intersection points: (%.1f %.1f), (%.1f %.1f)\n",
+               x3,
+               y3,
+               x4,
+               y4);
+    } else {
+        printf("Circles do not intersect\n");
+    }
     const char* output_f = "OutputGeometry.txt";
     FILE* file = fopen(output_f, "w");
     if (file == NULL) {
@@ -146,25 +244,58 @@ void output_results(double x, double y, double radius, double p, double s)
         printf("%s\n", output_f);
         return;
     }
-    fprintf(file, "circle(%.1f %.1f, %.1f)\n", x, y, radius);
-    fprintf(file, "perimeter = %f\n", p);
-    fprintf(file, "area = %f\n", s);
+    fprintf(file, "First circle: circle(%.1f %.1f, %.1f)\n", x1, y1, radius1);
+    fprintf(file, "perimeter = %f\n", p1);
+    fprintf(file, "area = %f\n", s1);
+    fprintf(file, "Second circle: circle(%.1f %.1f, %.1f)\n", x2, y2, radius2);
+    fprintf(file, "perimeter = %f\n", p2);
+    fprintf(file, "area = %f\n", s2);
+    if (intersect) {
+        fprintf(file,
+                "Intersection points: (%.1f %.1f), (%.1f %.1f)\n",
+                x3,
+                y3,
+                x4,
+                y4);
+    } else {
+        fprintf(file, "Circles do not intersect\n");
+    }
     fclose(file);
 }
 
 int check_circle(char* input)
 {
-    double x, y, radius;
-    if (validate_input(input, &x, &y, &radius) == -1) {
+    double x1, y1, radius1;
+    double x2, y2, radius2;
+    if (validate_input(input, &x1, &y1, &radius1, &x2, &y2, &radius2) == -1) {
         return -1;
     }
+    double p1, s1;
+    calculate_perimeter(radius1, &p1);
+    calculate_area(radius1, &s1);
 
-    double p, s;
-
-    calculate_circle(radius, &p, &s);
-
-    output_results(x, y, radius, p, s);
-
+        double p2, s2;
+    calculate_perimeter(radius2, &p2);
+    calculate_area(radius2, &s2);
+    double x3, y3, x4, y4;
+    int intersect = intersect_circles(
+            x1, y1, radius1, x2, y2, radius2, &x3, &y3, &x4, &y4);
+    output_results(
+            x1,
+            y1,
+            radius1,
+            p1,
+            s1,
+            x2,
+            y2,
+            radius2,
+            p2,
+            s2,
+            intersect,
+            x3,
+            y3,
+            x4,
+            y4);
     return 0;
 }
 

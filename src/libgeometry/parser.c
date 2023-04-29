@@ -274,7 +274,7 @@ int check_circle(char* input)
     calculate_perimeter(radius1, &p1);
     calculate_area(radius1, &s1);
 
-        double p2, s2;
+    double p2, s2;
     calculate_perimeter(radius2, &p2);
     calculate_area(radius2, &s2);
     double x3, y3, x4, y4;
